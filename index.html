@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enigme | Plataforma Oficial</title>
+  <style>
+    :root {
+      --ivory: #F8F5E7;
+      --burgundy: #5A0B1D;
+      --burgundy-10: rgba(90,11,29,0.10);
+      --burgundy-25: rgba(90,11,29,0.25);
+      --black: #0B0B0B;
+      --muted: #4A4A4A;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--ivory);
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+    .shell {
+      width: min(1100px, 100%);
+      background: var(--ivory);
+      border: 2px solid var(--burgundy);
+      border-radius: 24px;
+      padding: clamp(28px, 4vw, 46px);
+      box-shadow: 0 30px 110px var(--burgundy-10);
+    }
+    header { margin-bottom: 20px; }
+    h1 { margin: 0 0 10px; font-size: clamp(32px, 4vw, 44px); color: var(--black); }
+    p.lead { margin: 0; color: var(--muted); font-size: 18px; line-height: 1.6; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      align-items: center;
+      margin-top: 18px;
+    }
+    .hero {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 2px solid var(--burgundy);
+      box-shadow: 0 18px 50px var(--burgundy-10);
+      background: #fff;
+    }
+    .hero img { width: 100%; display: block; object-fit: cover; }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    a.btn {
+      position: relative;
+      isolation: isolate;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--burgundy);
+      background: #fff;
+      color: var(--black);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      box-shadow: 0 14px 30px var(--burgundy-10);
+      overflow: hidden;
+      transition: transform 140ms ease, box-shadow 180ms ease, border 140ms ease;
+    }
+    a.btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.5), transparent 55%);
+      opacity: 0;
+      transition: opacity 180ms ease;
+      z-index: -1;
+    }
+    a.btn:hover {
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 0 18px 38px var(--burgundy-25);
+      border-color: #7a1430;
+    }
+    a.btn:hover::after { opacity: 1; }
+    a.btn:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 20px var(--burgundy-10);
+    }
+    .icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--burgundy), #7a1430);
+      color: #fff; font-size: 20px; flex-shrink: 0;
+      box-shadow: 0 10px 20px var(--burgundy-25);
+    }
+
+    footer { margin-top: 18px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 640px) {
+      body { padding: 22px 14px; }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>Enigme · Plataforma Oficial</h1>
+      <p class="lead">Accede a tu espacio seguro, gestiona tus proyectos y obtén soporte prioritario.</p>
+    </header>
+
+    <section class="grid">
+      <div class="hero">
+        <img src="images/s1.png" alt="Portada Enigme">
+      </div>
+      <div class="actions" role="group" aria-label="Accesos principales">
+        <a class="btn" href="espacio.html">
+          <span class="icon">▶</span>
+          <span>Ingresa a tu espacio</span>
+        </a>
+        <a class="btn" href="soy-enigme.html">
+          <span class="icon">ℹ</span>
+          <span>Soy Enigme</span>
+        </a>
+      </div>
+    </section>
+
+    <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

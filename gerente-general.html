@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerencia General | Enigme</title>
+  <style>
+    :root { --ivory:#F8F5E7; --burgundy:#5A0B1D; --burgundy-10:rgba(90,11,29,0.10); --burgundy-20:rgba(90,11,29,0.20); --black:#0B0B0B; --muted:#4A4A4A; --radius:18px; }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;font-family:"Inter",system-ui,sans-serif;background:var(--ivory);color:var(--black);display:flex;justify-content:center;padding:32px 16px 48px;}
+    main{width:min(1320px,100%);background:var(--ivory);border:2px solid var(--burgundy);border-radius:22px;box-shadow:0 28px 90px var(--burgundy-10);padding:clamp(24px,4vw,40px);}
+    h1{margin:0 0 10px;font-size:clamp(28px,3.4vw,34px);}
+    p.lead{margin:0 0 18px;color:var(--muted);}
+    .card{border:1px solid var(--burgundy);border-radius:var(--radius);background:#fff;box-shadow:0 12px 26px var(--burgundy-10);padding:16px;display:flex;flex-direction:column;gap:14px;}
+    label{display:flex;flex-direction:column;gap:6px;font-weight:650;color:var(--black);}
+    select,input{width:100%;border:1px solid var(--burgundy-20);border-radius:12px;padding:12px;font:inherit;background:#fff;transition:border 120ms ease,box-shadow 160ms ease;}
+    select:focus,input:focus{outline:none;border-color:var(--burgundy);box-shadow:0 0 0 3px var(--burgundy-10);}
+    button{border:1px solid var(--burgundy);background:linear-gradient(135deg,#fff,#fdf7f1);color:var(--black);padding:12px 16px;border-radius:12px;font-weight:750;cursor:pointer;box-shadow:0 10px 22px var(--burgundy-10);transition:transform 120ms ease,box-shadow 160ms ease,border 120ms ease;}
+    button:hover{transform:translateY(-1px);box-shadow:0 14px 30px var(--burgundy-20);border-color:#7a1430;}
+    .btn-ghost{background:#fff;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;}
+    th,td{border:1px solid var(--burgundy-20);padding:10px;text-align:left;font-size:14px;}
+    th{background:#fdf7f1;font-weight:700;}
+    .msg{font-weight:700;padding:10px 12px;border-radius:12px;}
+    .ok{color:#0f8a3b;background:#e9f8ec;border:1px solid #bfe5c9;}
+    .err{color:#a3122f;background:#fdecef;border:1px solid #f4c7d4;}
+    .hidden{display:none;}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+    details summary{cursor:pointer;font-weight:750;}
+    footer{margin-top:12px;color:var(--muted);font-size:14px;}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .chip{padding:6px 10px;border-radius:14px;border:1px solid var(--burgundy-20);background:#fff;font-weight:650;}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top-actions">
+    <button type="button" onclick="location.href='index.html'">← Volver al inicio</button>
+    <button type="button" onclick="history.back()">↩ Atrás</button>
+  </div>
+  <h1>Gerencia General (Dirección Nacional)</h1>
+  <p class="lead">Acceso nacional. Cada GZ gana 4% de su zona, cada divisional 4% de su división, el Gerente General gana 5% de las ventas nacionales.</p>
+
+  <!-- Acceso -->
+  <section class="card" id="acceso">
+    <label>PIN nacional*
+      <input id="pin" type="password" autocomplete="off" />
+    </label>
+    <details>
+      <summary>¿Olvidaste el PIN? Recuperar acceso</summary>
+      <div class="grid-2" style="margin-top:10px;">
+        <label>DNI <input id="rec_dni" type="password" autocomplete="off" /></label>
+        <label>Fecha de nacimiento (titular) <input id="rec_fnac" type="password" autocomplete="off" /></label>
+        <label>Nombre de hija <input id="rec_hija" type="password" autocomplete="off" /></label>
+        <label>Fecha de nacimiento hija <input id="rec_hijaf" type="password" autocomplete="off" /></label>
+      </div>
+      <small>Si los datos coinciden, se concede acceso sin mostrar el PIN.</small>
+      <button type="button" id="btnRecuperar" style="margin-top:8px;">Validar identidad</button>
+      <div id="recMsg"></div>
+    </details>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <button type="button" id="continuar">Validar y mostrar panel</button>
+      <button type="button" class="btn-ghost" id="limpiar">Limpiar</button>
+    </div>
+    <div id="mensaje"></div>
+  </section>
+
+  <!-- Panel -->
+  <section class="card hidden" id="panel">
+    <div class="top-actions" style="margin-top:-8px;">
+      <button type="button" onclick="location.href='index.html'">← Volver al inicio</button>
+      <button type="button" onclick="history.back()">↩ Atrás</button>
+    </div>
+    <h2>Panel nacional</h2>
+    <p class="lead">Consolida 6 divisiones y 3 gerencias de zona.</p>
+
+    <!-- Divisiones -->
+    <div class="card">
+      <h3>Divisiones (ventas totales por división)</h3>
+      <table>
+        <thead><tr><th>División</th><th>Ventas (L)</th><th>GZ incluidas / nota</th></tr></thead>
+        <tbody id="tblDiv"></tbody>
+        <tfoot><tr><th>Total divisiones</th><th id="totDiv"></th><th></th></tr></tfoot>
+      </table>
+    </div>
+
+    <!-- Vista interactiva divisional -->
+    <div class="card">
+      <h3>Zonas divisionales (clic para ver departamentos)</h3>
+      <div id="divList">
+        <details>
+          <summary>ÁMBAR · Sur</summary>
+          <div class="chips"><span class="chip">Choluteca</span><span class="chip">Valle</span></div>
+          <p>Frontera sur y corredor al Golfo de Fonseca; rutas cortas y de alto flujo.</p>
+        </details>
+        <details>
+          <summary>OCÉANO · Norte Caribe</summary>
+          <div class="chips"><span class="chip">Atlántida</span><span class="chip">Colón</span></div>
+          <p>Eje costero caribeño; combina turismo, pesca y comercio en el litoral.</p>
+        </details>
+        <details>
+          <summary>RODIO · Valle de Sula</summary>
+          <div class="chips"><span class="chip">Cortés</span><span class="chip">Santa Bárbara</span><span class="chip">Yoro</span></div>
+          <p>Núcleo industrial-logístico del norte; alta densidad de pedidos.</p>
+        </details>
+        <details>
+          <summary>COSMOS · Central</summary>
+          <div class="chips"><span class="chip">Francisco Morazán</span><span class="chip">Comayagua</span><span class="chip">La Paz</span></div>
+          <p>Centro político y nodo de conexión vía Palmerola y corredor central.</p>
+        </details>
+        <details>
+          <summary>ESMERALDA · Occidente</summary>
+          <div class="chips"><span class="chip">Copán</span><span class="chip">Lempira</span><span class="chip">Ocotepeque</span><span class="chip">Intibucá</span></div>
+          <p>Corredor cafetalero y fronterizo; comercio binacional activo.</p>
+        </details>
+        <details>
+          <summary>SÁNDALO · Oriente</summary>
+          <div class="chips"><span class="chip">Olancho</span><span class="chip">El Paraíso</span><span class="chip">Gracias a Dios</span></div>
+          <p>Territorio extenso; enfoque agro-rural y retos de acceso disperso.</p>
+        </details>
+      </div>
+    </div>
+
+    <!-- Gerencias de zona -->
+    <div class="card">
+      <h3>Gerencias de zona (4% cada una)</h3>
+      <table>
+        <thead><tr><th>Zona</th><th>Gerente</th><th>Ventas (L)</th><th>Nombramientos</th><th>Pedidos</th><th>Crec. vs camp. ant.</th><th>Pago GZ 4%</th></tr></thead>
+        <tbody id="tblZonas"></tbody>
+        <tfoot><tr><th colspan="2">Total Zonas</th><th id="totVentasZ"></th><th id="totNomZ"></th><th id="totPedZ"></th><th id="totCrecZ"></th><th id="totPagoZ"></th></tr></tfoot>
+      </table>
+    </div>
+
+    <!-- Totales y comisiones -->
+    <div class="card">
+      <h3>Totales y comisiones</h3>
+      <div class="msg ok" id="msgTot"></div>
+      <div class="msg ok" id="msgDiv"></div>
+      <div class="msg ok" id="msgGG"></div>
+    </div>
+
+    <!-- Recursos -->
+    <div class="card">
+      <h3>Recursos</h3>
+      <details>
+        <summary>Archivos PDF</summary>
+        <ul>
+          <li><a href="pins%20generales%20g%20divisional.pdf" target="_blank">pins generales g divisional.pdf</a></li>
+          <li><a href="PINs_Enigme_Listado_Pegado.pdf" target="_blank">PINs_Enigme_Listado_Pegado.pdf</a></li>
+          <li><a href="RIL1998.pdf" target="_blank">RIL1998.pdf (accesos empleados)</a></li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+</main>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// --- Credenciales (ofuscado en base64) ---
+const pinEncoded   = "MzAxMjIwMjIzMDA4MTk5OA=="; // 3012202230081998
+const dniEncoded   = "MDYwMTE5OTkwMzIzMg==";      // 0601199903232
+const fnacEncoded  = "MTk5OC0wOC0zMA==";          // 1998-08-30
+const hijaEncoded  = "QWJyaWwgQXJtYXM=";          // Abril Armas
+const fhijaEncoded = "MjAyMi0xMi0zMA==";          // 2022-12-30
+
+// Datos mock
+const divisiones = [
+  { id:"AMBAR", ventas: 326000, nota:"Incluye ABRICHOL, ABRIMONT, ABRIVALLE" },
+  { id:"SANDALO", ventas: 85000, nota:"Pendiente detallar zonas" },
+  { id:"RODIO", ventas: 91000, nota:"Pendiente detallar zonas" },
+  { id:"ESMERALDA", ventas: 78000, nota:"Pendiente detallar zonas" },
+  { id:"COSMOS", ventas: 99000, nota:"Pendiente detallar zonas" },
+  { id:"OCEANO", ventas: 88000, nota:"Pendiente detallar zonas" }
+];
+
+let zonas = [
+  { id:"ABRICHOL", nombre:"ABRICHOL",  gerente:"GZ Metro/Sur",           ventas: 150000, nombramientos: 42, pedidos: 120, prevVentas: 47000 },
+  { id:"ABRIMONT", nombre:"ABRIMONT",  gerente:"GZ Interior Choluteca",  ventas: 81000,  nombramientos: 35, pedidos:  95, prevVentas: 33000 },
+  { id:"ABRIVALLE",nombre:"ABRIVALLE", gerente:"GZ Valle departamental", ventas: 95000,  nombramientos: 38, pedidos: 105, prevVentas: 39000 }
+];
+
+// DOM refs
+const pinInput = document.getElementById('pin');
+const panel   = document.getElementById('panel');
+const acceso  = document.getElementById('acceso');
+const msgBox  = document.getElementById('mensaje');
+const recMsg  = document.getElementById('recMsg');
+
+// Acceso con PIN
+document.getElementById('continuar').addEventListener('click', ()=>{
+  if(validarPin(pinInput.value.trim())){
+    acceder();
+  } else {
+    msg("PIN incorrecto. Usa recuperación o verifica con el administrador.", true);
+  }
+});
+
+// Recuperación
+document.getElementById('btnRecuperar').addEventListener('click', ()=>{
+  const ok = validarRecuperacion(
+    document.getElementById('rec_dni').value.trim(),
+    document.getElementById('rec_fnac').value.trim(),
+    document.getElementById('rec_hija').value.trim(),
+    document.getElementById('rec_hijaf').value.trim()
+  );
+  if(ok){
+    setMsg(recMsg,"Identidad verificada. Acceso concedido.",false);
+    acceder();
+  }else{
+    setMsg(recMsg,"Datos de recuperación no coinciden.",true);
+  }
+});
+
+// Limpieza
+document.getElementById('limpiar').addEventListener('click', ()=>{
+  pinInput.value="";
+  ["rec_dni","rec_fnac","rec_hija","rec_hijaf"].forEach(id=>document.getElementById(id).value="");
+  msg(""); recMsg.innerHTML="";
+  acceso.classList.remove('hidden'); panel.classList.add('hidden');
+});
+
+// Helpers de validación
+function validarPin(p){ return p && p === atob(pinEncoded); }
+function validarRecuperacion(dni,fnac,hija,fhija){
+  return dni === atob(dniEncoded) &&
+         normalizarFecha(fnac)  === normalizarFecha(atob(fnacEncoded)) &&
+         hija.toLowerCase()     === atob(hijaEncoded).toLowerCase() &&
+         normalizarFecha(fhija) === normalizarFecha(atob(fhijaEncoded));
+}
+function normalizarFecha(val){
+  if(!val) return "";
+  if(/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(val)){
+    const [d,m,y]=val.split("/");
+    return `${y}-${m}-${d}`;
+  }
+  return val;
+}
+function msg(text,isErr=false){
+  if(!text){ msgBox.innerHTML=""; return; }
+  msgBox.className = "msg " + (isErr ? "err" : "ok");
+  msgBox.textContent = text;
+}
+function setMsg(node,text,isErr){
+  if(!text){ node.innerHTML=""; return; }
+  node.className = "msg " + (isErr ? "err" : "ok");
+  node.textContent = text;
+}
+
+// Acceso exitoso
+function acceder(){
+  msg(""); recMsg.innerHTML="";
+  acceso.classList.add('hidden');
+  panel.classList.remove('hidden');
+  renderDivisiones();
+  calcularZonas();
+}
+
+// Tablas y cálculos
+function renderDivisiones(){
+  const tbody = document.getElementById('tblDiv'); tbody.innerHTML="";
+  let total=0;
+  divisiones.forEach(d=>{
+    total += d.ventas;
+    tbody.insertAdjacentHTML('beforeend',`
+      <tr><td>${d.id}</td><td>L ${d.ventas.toLocaleString()}</td><td>${d.nota}</td></tr>
+    `);
+  });
+  document.getElementById('totDiv').textContent = "L " + total.toLocaleString();
+}
+
+function calcularZonas(){
+  const tbody = document.getElementById('tblZonas'); tbody.innerHTML="";
+  let totV=0, totN=0, totP=0, totPago=0;
+  zonas.forEach(z=>{
+    z.crec = z.prevVentas ? ((z.ventas - z.prevVentas)/z.prevVentas*100) : 0;
+    const pago = z.ventas * 0.04;
+    totV += z.ventas; totN += z.nombramientos; totP += z.pedidos; totPago += pago;
+    tbody.insertAdjacentHTML('beforeend',`
+      <tr>
+        <td>${z.nombre}</td>
+        <td>${z.gerente}</td>
+        <td>L ${z.ventas.toLocaleString()}</td>
+        <td>${z.nombramientos}</td>
+        <td>${z.pedidos}</td>
+        <td>${z.crec.toFixed(1)}%</td>
+        <td>L ${pago.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      </tr>`);
+  });
+  document.getElementById('totVentasZ').textContent = "L " + totV.toLocaleString();
+  document.getElementById('totNomZ').textContent   = totN;
+  document.getElementById('totPedZ').textContent   = totP;
+  const crecProm = zonas.length ? zonas.reduce((a,b)=>a+b.crec,0)/zonas.length : 0;
+  document.getElementById('totCrecZ').textContent  = crecProm.toFixed(1)+"% (prom)";
+  document.getElementById('totPagoZ').textContent  = "L " + totPago.toLocaleString(undefined,{minimumFractionDigits:2});
+
+  const ventasDivisiones = divisiones.reduce((a,b)=>a+b.ventas,0);
+  const comDivisional = ventasDivisiones * 0.04;  // 4% divisionales
+  const comGG = ventasDivisiones * 0.05;          // 5% gerente general
+  document.getElementById('msgTot').textContent = `Ventas nacionales: L ${ventasDivisiones.toLocaleString()}`;
+  document.getElementById('msgDiv').textContent = `Pago divisional (4% sobre ventas nacionales): L ${comDivisional.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+  document.getElementById('msgGG').textContent  = `Comisión Gerente General (5% sobre ventas nacionales): L ${comGG.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+}
+</script>
+</body>
+</html>

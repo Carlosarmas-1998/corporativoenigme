@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerencia de Zona | Enigme</title>
+  <style>
+    :root { --ivory:#F8F5E7; --burgundy:#5A0B1D; --burgundy-10:rgba(90,11,29,0.10); --burgundy-20:rgba(90,11,29,0.20); --black:#0B0B0B; --muted:#4A4A4A; --radius:18px; }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;font-family:"Inter",system-ui,sans-serif;background:var(--ivory);color:var(--black);display:flex;justify-content:center;padding:32px 16px 48px;}
+    main{width:min(1080px,100%);background:var(--ivory);border:2px solid var(--burgundy);border-radius:22px;box-shadow:0 28px 90px var(--burgundy-10);padding:clamp(24px,4vw,40px);}
+    h1{margin:0 0 10px;font-size:clamp(28px,3.4vw,34px);}
+    p.lead{margin:0 0 18px;color:var(--muted);}
+    .card{border:1px solid var(--burgundy);border-radius:var(--radius);background:#fff;box-shadow:0 12px 26px var(--burgundy-10);padding:16px;display:flex;flex-direction:column;gap:14px;}
+    .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+    label{display:flex;flex-direction:column;gap:6px;font-weight:650;color:var(--black);}
+    input,select{width:100%;border:1px solid var(--burgundy-20);border-radius:12px;padding:12px;font:inherit;background:#fff;transition:border 120ms ease,box-shadow 160ms ease;}
+    input:focus,select:focus{outline:none;border-color:var(--burgundy);box-shadow:0 0 0 3px var(--burgundy-10);}
+    button{border:1px solid var(--burgundy);background:linear-gradient(135deg,#fff,#fdf7f1);color:var(--black);padding:12px 16px;border-radius:12px;font-weight:750;cursor:pointer;box-shadow:0 10px 22px var(--burgundy-10);transition:transform 120ms ease,box-shadow 160ms ease,border 120ms ease;}
+    button:hover{transform:translateY(-1px);box-shadow:0 14px 30px var(--burgundy-20);border-color:#7a1430;}
+    button:active{transform:translateY(0);box-shadow:0 8px 16px var(--burgundy-10);}
+    .btn-ghost{background:#fff;}
+    .msg{font-weight:700;padding:10px 12px;border-radius:12px;}
+    .ok{color:#0f8a3b;background:#e9f8ec;border:1px solid #bfe5c9;}
+    .err{color:#a3122f;background:#fdecef;border:1px solid #f4c7d4;}
+    .hidden{display:none;}
+    table{width:100%;border-collapse:collapse;margin-top:10px;}
+    th,td{border:1px solid var(--burgundy-20);padding:10px;text-align:left;font-size:14px;}
+    th{background:#fdf7f1;font-weight:700;}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top-actions">
+    <button type="button" onclick="history.back()">← Volver</button>
+  </div>
+  <h1>Gerencia de Zona</h1>
+  <p class="lead">Acceso con PIN de zona. Visualiza pedidos, cobertura y comisiones.</p>
+
+  <!-- Acceso -->
+  <section class="card" id="acceso">
+    <div class="grid-2">
+      <label>Zona* 
+        <select id="zona" required>
+          <option value="">Selecciona</option>
+          <option value="ABRICHOL">🏙️ ABRICHOL (Metro/Sur)</option>
+          <option value="ABRIMONT">🏔️ ABRIMONT (Interior Choluteca)</option>
+          <option value="ABRIVALLE">🏞️ ABRIVALLE (Valle departamental)</option>
+        </select>
+      </label>
+      <label>PIN* <input id="pin" required placeholder="Ingresa el PIN de la zona" /></label>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="button" id="continuar">Validar y mostrar panel</button>
+      <button type="button" class="btn-ghost" id="limpiar">Limpiar todo</button>
+    </div>
+    <div id="mensaje"></div>
+  </section>
+
+  <!-- Panel -->
+  <section class="card hidden" id="panel">
+    <div class="top-actions" style="margin-top:-8px;">
+      <button type="button" onclick="history.back()">← Volver</button>
+    </div>
+    <h2>Panel de Gerencia de Zona</h2>
+    <p class="lead" id="resumen"></p>
+
+    <!-- Pedidos por municipio/subzona -->
+    <div class="card">
+      <h3>Pedidos por municipio / subzona</h3>
+      <div class="grid-2">
+        <label>Filtrar municipio <select id="f_muni"><option value="">Todos</option></select></label>
+        <label>Filtrar subzona <select id="f_sub"><option value="">Todas</option></select></label>
+      </div>
+      <table id="tblPedidos">
+        <thead><tr><th>Fecha</th><th>Municipio</th><th>Subzona</th><th>Pedido</th><th>Monto (L)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="msg ok" id="statsPedidos"></div>
+      <small>Solo lectura. Datos se cargan desde tu backend; aquí es mock local.</small>
+    </div>
+
+    <!-- Cobertura y ranking -->
+    <div class="card">
+      <h3>Ranking de desempeño</h3>
+      <div id="ranking"></div>
+      <h4>Ideas para incentivar</h4>
+      <ul id="ideas"></ul>
+    </div>
+
+    <!-- Pago / comisión -->
+    <div class="card">
+      <h3>Comisión de zona</h3>
+      <div class="grid-2">
+        <label>Total ventas de la zona (L) <input id="ventasZona" type="number" min="0" step="0.01" /></label>
+        <label>Comisión (4%) <input id="comision" readonly /></label>
+      </div>
+      <button type="button" id="calcComision">Calcular</button>
+    </div>
+
+    <!-- Export -->
+    <div class="card">
+      <h3>Descargas</h3>
+      <button type="button" id="exportar">Exportar Excel (demo)</button>
+    </div>
+  </section>
+
+  <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+</main>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const pinZona = {
+  ABRICHOL: "K7P9C3",
+  ABRIMONT: "M4X8R1",
+  ABRIVALLE: "H6N2V9"
+};
+
+const mockPedidos = [
+  {fecha:"2026-02-20", muni:"Marcovia", sub:"-", monto:18000},
+  {fecha:"2026-02-21", muni:"Choluteca", sub:"CH02", monto:24000},
+  {fecha:"2026-02-21", muni:"Choluteca", sub:"CH01", monto:9000},
+  {fecha:"2026-02-22", muni:"Nacaome", sub:"-", monto:12000},
+  {fecha:"2026-02-22", muni:"San Lorenzo", sub:"SL01", monto:7000},
+  {fecha:"2026-02-23", muni:"San Lorenzo", sub:"SL03", monto:15000},
+  {fecha:"2026-02-23", muni:"Pespire", sub:"-", monto:6000},
+];
+
+const zonaMunicipios = {
+  ABRICHOL: ["Marcovia","Choluteca"],
+  ABRIMONT: ["El Triunfo","Namasigüe","El Corpus","Concepción de María","San Marcos de Colón","Duyure","Santa Ana de Yusguare","Pespire","Apacilagua","Morolica","Orocuina","San José","San Isidro","San Antonio de Flores"],
+  ABRIVALLE: ["Amapala (Isla)","Alianza","Goascorán (Aduana El Amatillo)","Aramecina","Caridad","San Francisco de Coray","Langue","Nacaome","San Lorenzo"]
+};
+
+const subzonas = {
+  Choluteca:["CH01","CH02","CH03","CH04"],
+  "San Lorenzo":["SL01","SL02","SL03"]
+};
+
+const zona = document.getElementById('zona');
+const pin = document.getElementById('pin');
+const muniSel = document.getElementById('municipio');
+const subSel = document.getElementById('subzona');
+const msgBox = document.getElementById('mensaje');
+const panel = document.getElementById('panel');
+const acceso = document.getElementById('acceso');
+const resumen = document.getElementById('resumen');
+const fMuni = document.getElementById('f_muni');
+const fSub = document.getElementById('f_sub');
+const tblBody = document.querySelector('#tblPedidos tbody');
+const stats = document.getElementById('statsPedidos');
+const ranking = document.getElementById('ranking');
+const ideas = document.getElementById('ideas');
+const ventasZona = document.getElementById('ventasZona');
+const comision = document.getElementById('comision');
+
+document.getElementById('continuar').addEventListener('click', ()=>{
+  const z = zona.value;
+  const p = pin.value.trim();
+  if(!z || !p){ msg("Completa zona y PIN.", true); return; }
+  if(p!==pinZona[z]){ msg("PIN incorrecto.", true); return; }
+  msg("Acceso concedido.", false);
+  acceso.classList.add('hidden');
+  panel.classList.remove('hidden');
+  resumen.textContent = `Zona: ${z}`;
+  loadMunicipiosFilters(z);
+  renderPedidos();
+  renderRanking();
+  openFiltersDefaults();
+});
+
+document.getElementById('limpiar').addEventListener('click', ()=>{
+  zona.value=""; pin.value=""; msg("");
+  acceso.classList.remove('hidden');
+  panel.classList.add('hidden');
+});
+
+function msg(text, isErr=false){
+  if(!text){ msgBox.innerHTML=""; return; }
+  msgBox.className = "msg " + (isErr ? "err" : "ok");
+  msgBox.textContent = text;
+}
+
+function loadMunicipiosFilters(z){
+  fMuni.innerHTML='<option value="">Todos</option>';
+  (zonaMunicipios[z]||[]).forEach(m=>fMuni.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
+  fSub.innerHTML='<option value="">Todas</option>';
+  Object.values(subzonas).flat().forEach(s=>fSub.insertAdjacentHTML('beforeend', `<option value="${s}">${s}</option>`));
+}
+
+function renderPedidos(){
+  const muniFilter = fMuni.value;
+  const subFilter = fSub.value;
+  tblBody.innerHTML='';
+  let total=0;
+  let counts = {};
+  mockPedidos
+    .filter(p=>!muniFilter || p.muni===muniFilter)
+    .filter(p=>!subFilter || p.sub===subFilter)
+    .forEach(p=>{
+      total+=p.monto;
+      counts[p.muni]= (counts[p.muni]||0)+p.monto;
+      tblBody.insertAdjacentHTML('beforeend',
+        `<tr><td>${p.fecha}</td><td>${p.muni}</td><td>${p.sub||"-"}</td><td>${p.muni}-${p.sub||"N/A"}</td><td>${p.monto.toFixed(2)}</td></tr>`);
+    });
+  stats.textContent = `Pedidos listados: ${tblBody.children.length} · Monto total: L ${total.toFixed(2)}`;
+  renderRanking(counts);
+}
+
+[fMuni,fSub].forEach(el=>el.addEventListener('change', renderPedidos));
+
+function renderRanking(countsObj){
+  const counts = countsObj || mockPedidos.reduce((acc,p)=>{acc[p.muni]=(acc[p.muni]||0)+p.monto; return acc;}, {});
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  ranking.innerHTML = entries.map(([m,v],i)=>`${i+1}. ${m}: L ${v.toFixed(2)}`).join('<br>') || "Sin datos";
+  const least = entries[entries.length-1];
+  const most = entries[0];
+  ideas.innerHTML = `
+    <li>Municipio con menor venta: ${least ? `${least[0]} (L ${least[1].toFixed(2)})` : "—"}. Ofrece bono por primer pedido de la semana.</li>
+    <li>Municipio con mayor venta: ${most ? `${most[0]} (L ${most[1].toFixed(2)})` : "—"}. Replica su guion / mejores prácticas.</li>
+    <li>Implementa concurso flash de 48h para subzonas con 0 pedidos.</li>
+    <li>Segmenta recordatorios diarios de cobro y entrega para subzonas lentas.</li>
+  `;
+}
+
+document.getElementById('calcComision').addEventListener('click', ()=>{
+  const v = parseFloat(ventasZona.value)||0;
+  comision.value = `L ${(v*0.04).toFixed(2)}`;
+});
+
+document.getElementById('exportar').addEventListener('click', ()=>{
+  alert("Demo: conecta este botón a tu backend para exportar Excel.");
+});
+
+/* accordion (solo uno) */
+const headers = document.querySelectorAll('.accordion-header');
+headers.forEach(h => h.addEventListener('click', () => {
+  const target = h.dataset.acc;
+  ['verif','nom','pedido','pago'].forEach(id => {
+    const body = document.getElementById('acc-'+id);
+    if(id === target) body.classList.toggle('hidden'); else body.classList.add('hidden');
+  });
+}));
+function openFiltersDefaults(){ fMuni.value=""; fSub.value=""; renderPedidos(); }
+</script>
+</body>
+</html>

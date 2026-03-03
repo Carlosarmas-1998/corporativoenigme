@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerencia Divisional | Enigme</title>
+  <style>
+    :root { --ivory:#F8F5E7; --burgundy:#5A0B1D; --burgundy-10:rgba(90,11,29,0.10); --burgundy-20:rgba(90,11,29,0.20); --black:#0B0B0B; --muted:#4A4A4A; --radius:18px; }
+    *{box-sizing:border-box;}
+    body{margin:0;min-height:100vh;font-family:"Inter",system-ui,sans-serif;background:var(--ivory);color:var(--black);display:flex;justify-content:center;padding:32px 16px 48px;}
+    main{width:min(1180px,100%);background:var(--ivory);border:2px solid var(--burgundy);border-radius:22px;box-shadow:0 28px 90px var(--burgundy-10);padding:clamp(24px,4vw,40px);}
+    h1{margin:0 0 10px;font-size:clamp(28px,3.4vw,34px);}
+    p.lead{margin:0 0 18px;color:var(--muted);}
+    .card{border:1px solid var(--burgundy);border-radius:var(--radius);background:#fff;box-shadow:0 12px 26px var(--burgundy-10);padding:16px;display:flex;flex-direction:column;gap:14px;}
+    label{display:flex;flex-direction:column;gap:6px;font-weight:650;color:var(--black);}
+    select,input{width:100%;border:1px solid var(--burgundy-20);border-radius:12px;padding:12px;font:inherit;background:#fff;transition:border 120ms ease,box-shadow 160ms ease;}
+    select:focus,input:focus{outline:none;border-color:var(--burgundy);box-shadow:0 0 0 3px var(--burgundy-10);}
+    button{border:1px solid var(--burgundy);background:linear-gradient(135deg,#fff,#fdf7f1);color:var(--black);padding:12px 16px;border-radius:12px;font-weight:750;cursor:pointer;box-shadow:0 10px 22px var(--burgundy-10);transition:transform 120ms ease,box-shadow 160ms ease,border 120ms ease;}
+    button:hover{transform:translateY(-1px);box-shadow:0 14px 30px var(--burgundy-20);border-color:#7a1430;}
+    .btn-ghost{background:#fff;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;}
+    th,td{border:1px solid var(--burgundy-20);padding:10px;text-align:left;font-size:14px;}
+    th{background:#fdf7f1;font-weight:700;}
+    .msg{font-weight:700;padding:10px 12px;border-radius:12px;}
+    .ok{color:#0f8a3b;background:#e9f8ec;border:1px solid #bfe5c9;}
+    .err{color:#a3122f;background:#fdecef;border:1px solid #f4c7d4;}
+    .hidden{display:none;}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+    footer{margin-top:12px;color:var(--muted);font-size:14px;}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top-actions">
+    <button type="button" onclick="history.back()">← Volver</button>
+  </div>
+  <h1>Gerencia Divisional</h1>
+  <p class="lead">Cada GZ gana el 4% de su zona. El divisional gana el 4% del total de todas las zonas.</p>
+
+  <!-- Acceso -->
+  <section class="card" id="acceso">
+    <div class="grid-2">
+      <label>División*
+        <select id="division" required>
+          <option value="">Selecciona</option>
+          <option value="AMBAR">ÁMBAR</option>
+          <option value="SANDALO">SÁNDALO</option>
+          <option value="RODIO">RODIO</option>
+          <option value="ESMERALDA">ESMERALDA</option>
+          <option value="COSMOS">COSMOS UNIVERSO</option>
+          <option value="OCEANO">OCÉANO</option>
+        </select>
+      </label>
+      <label>PIN* <input id="pin" required placeholder="Ingresa el PIN de la división" /></label>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="button" id="continuar">Validar y mostrar panel</button>
+      <button type="button" class="btn-ghost" id="limpiar">Limpiar</button>
+    </div>
+    <div id="mensaje"></div>
+  </section>
+
+  <!-- Panel -->
+  <section class="card hidden" id="panel">
+    <div class="top-actions" style="margin-top:-8px;">
+      <button type="button" onclick="history.back()">← Volver</button>
+    </div>
+    <h2 id="tituloPanel">Panel divisional</h2>
+
+    <!-- Resumen integral -->
+    <div class="card" style="gap:6px;">
+      <h3>Resumen por zona (3 gerencias de zona)</h3>
+      <table>
+        <thead><tr><th>Zona</th><th>Gerente de Zona</th><th>Ventas (L)</th><th>Nombramientos</th><th>Pedidos</th><th>Crec. vs campaña ant.</th><th>Pago GZ (4%)</th></tr></thead>
+        <tbody id="tblZonas"></tbody>
+        <tfoot>
+          <tr><th colspan="2">Total divisional</th><th id="totVentas"></th><th id="totNom"></th><th id="totPed"></th><th id="totCrec"></th><th id="totPago"></th></tr>
+        </tfoot>
+      </table>
+      <div class="msg ok" id="msgDiv"></div>
+      <div class="msg ok" id="msgComDiv"></div>
+    </div>
+
+    <!-- Ranking de crecimiento normalizado -->
+    <div class="card" style="gap:6px;">
+      <h3>Ranking de crecimiento por campaña (normalizado)</h3>
+      <table>
+        <thead><tr><th>#</th><th>Zona</th><th>Crecimiento %</th><th>Notas</th></tr></thead>
+        <tbody id="tblRank"></tbody>
+      </table>
+    </div>
+
+    <!-- Ideas de apoyo -->
+    <div class="card" style="gap:6px;">
+      <h3>Apoyo automático a la zona más caída</h3>
+      <ul id="ideas"></ul>
+    </div>
+  </section>
+
+  <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+</main>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// PINs por división (ÁMBAR provisto)
+const PIN_DIV = {
+  AMBAR: "A7M9B6",
+  SANDALO: "S6NEL8",
+  RODIO: "R9D6X9",
+  ESMERALDA: "X6X9E0",
+  COSMOS: "L4G4G4",
+  OCEANO: "0ZANO0"
+};
+
+// Datos mock de las 3 zonas
+let zonas = [
+  { id:"ABRICHOL", nombre:"ABRICHOL",  gerente:"GZ Metro/Sur",           ventas: 150000, nombramientos: 42, pedidos: 120, prevVentas: 47000 },
+  { id:"ABRIMONT", nombre:"ABRIMONT",  gerente:"GZ Interior Choluteca",  ventas: 81000, nombramientos: 35, pedidos:  95, prevVentas: 33000 },
+  { id:"ABRIVALLE",nombre:"ABRIVALLE", gerente:"GZ Valle departamental", ventas: 95000, nombramientos: 38, pedidos: 105, prevVentas: 39000 }
+];
+
+// Acceso
+const divisionSel = document.getElementById('division');
+const pinInput = document.getElementById('pin');
+const panel = document.getElementById('panel');
+const acceso = document.getElementById('acceso');
+const msgBox = document.getElementById('mensaje');
+const tituloPanel = document.getElementById('tituloPanel');
+
+document.getElementById('continuar').addEventListener('click', ()=>{
+  const div = divisionSel.value;
+  const p   = pinInput.value.trim();
+  if(!div || !p){ msg("Selecciona división e ingresa PIN.", true); return; }
+  if(!PIN_DIV[div]){ msg("PIN pendiente de configurar para esta división.", true); return; }
+  if(p!==PIN_DIV[div]){ msg("PIN incorrecto.", true); return; }
+  msg("Acceso concedido.", false);
+  acceso.classList.add('hidden');
+  panel.classList.remove('hidden');
+  tituloPanel.textContent = `Panel divisional · ${divisionSel.options[divisionSel.selectedIndex].text}`;
+  calcularTodo();
+});
+
+document.getElementById('limpiar').addEventListener('click', ()=>{
+  divisionSel.value=""; pinInput.value=""; msg("");
+  acceso.classList.remove('hidden'); panel.classList.add('hidden');
+});
+
+function msg(text,isErr=false){
+  if(!text){ msgBox.innerHTML=""; return; }
+  msgBox.className = "msg " + (isErr ? "err" : "ok");
+  msgBox.textContent = text;
+}
+
+// Cálculos
+function calcularTodo(){
+  const tbody = document.getElementById('tblZonas');
+  tbody.innerHTML="";
+  let totV=0, totN=0, totP=0, totPago=0;
+  zonas.forEach(z=>{
+    z.crec = z.prevVentas ? ((z.ventas - z.prevVentas)/z.prevVentas*100) : 0;
+    const pago = z.ventas * 0.04; // 4% para cada GZ
+    totV += z.ventas; totN += z.nombramientos; totP += z.pedidos; totPago += pago;
+    tbody.insertAdjacentHTML('beforeend',`
+      <tr>
+        <td>${z.nombre}</td>
+        <td>${z.gerente}</td>
+        <td>L ${z.ventas.toLocaleString()}</td>
+        <td>${z.nombramientos}</td>
+        <td>${z.pedidos}</td>
+        <td>${z.crec.toFixed(1)}%</td>
+        <td>L ${pago.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
+      </tr>`);
+  });
+  document.getElementById('totVentas').textContent = "L " + totV.toLocaleString();
+  document.getElementById('totNom').textContent   = totN;
+  document.getElementById('totPed').textContent   = totP;
+  const crecProm = zonas.length ? zonas.reduce((a,b)=>a+b.crec,0)/zonas.length : 0;
+  document.getElementById('totCrec').textContent  = crecProm.toFixed(1)+"% (prom)";
+  document.getElementById('totPago').textContent  = "L " + totPago.toLocaleString(undefined,{minimumFractionDigits:2});
+
+  const comDiv = totV * 0.04; // 4% del total para el divisional
+  document.getElementById('msgDiv').textContent   = `Ventas totales L ${totV.toLocaleString()} · Pagos GZ (4% cada zona) L ${totPago.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+  document.getElementById('msgComDiv').textContent= `Comisión Divisional (4% sobre el total L ${totV.toLocaleString()}): L ${comDiv.toLocaleString(undefined,{minimumFractionDigits:2})}`;
+  renderRanking();
+  renderIdeas();
+}
+
+function renderRanking(){
+  const t = document.getElementById('tblRank');
+  t.innerHTML="";
+  const orden = [...zonas].sort((a,b)=>b.crec - a.crec);
+  orden.forEach((z,i)=>{
+    const nota = z.crec>=8 ? "Alza fuerte" : z.crec>=3 ? "Estable" : "Baja; requiere apoyo";
+    t.insertAdjacentHTML('beforeend',`
+      <tr>
+        <td>${i+1}</td>
+        <td>${z.nombre}</td>
+        <td>${z.crec.toFixed(1)}%</td>
+        <td>${nota}</td>
+      </tr>`);
+  });
+}
+
+function renderIdeas(){
+  const peor = [...zonas].sort((a,b)=>a.crec - b.crec)[0];
+  const mejor = [...zonas].sort((a,b)=>b.crec - a.crec)[0];
+  const ul = document.getElementById('ideas');
+  ul.innerHTML = `
+    <li>Zona más caída: ${peor.nombre} (${peor.crec.toFixed(1)}%). Organiza día de campo con apoyo de ${mejor.nombre}.</li>
+    <li>Comparte guion y mejores prácticas de ${mejor.nombre} a ${peor.nombre}.</li>
+    <li>Bono por primer pedido de la semana en municipios sin pedidos de esta campaña.</li>
+    <li>Refuerzo de cobranza/logística en municipios con caída &gt;5% vs campaña anterior.</li>
+  `;
+}
+
+// Punto de integración futuro: reemplaza el array `zonas` por fetch a tu API y llama a `calcularTodo()`.
+
+</script>
+</body>
+</html>

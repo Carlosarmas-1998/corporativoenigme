@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingresa a tu espacio | Enigme</title>
+  <style>
+    :root {
+      --ivory: #F8F5E7;
+      --burgundy: #5A0B1D;
+      --burgundy-10: rgba(90,11,29,0.10);
+      --burgundy-25: rgba(90,11,29,0.25);
+      --black: #0B0B0B;
+      --muted: #4A4A4A;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--ivory);
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+    }
+    .panel {
+      width: min(680px, 100%);
+      background: var(--ivory);
+      border: 2px solid var(--burgundy);
+      border-radius: 22px;
+      padding: clamp(26px, 4vw, 42px);
+      box-shadow: 0 28px 90px var(--burgundy-10);
+    }
+    .top-actions { display:flex; justify-content:flex-start; margin-bottom:12px; }
+    .top-actions button{
+      border:1px solid var(--burgundy);
+      background:#fff;
+      color:var(--black);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 10px 22px var(--burgundy-10);
+      transition:transform 120ms ease, box-shadow 160ms ease, border 120ms ease;
+    }
+    .top-actions button:hover{transform:translateY(-1px);box-shadow:0 14px 30px var(--burgundy-20);border-color:#7a1430;}
+
+    header { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: clamp(28px, 3.4vw, 36px); color: var(--black); }
+    p.sub { margin: 0; color: var(--muted); line-height: 1.6; }
+
+    .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+    a.btn {
+      position: relative;
+      isolation: isolate;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--burgundy);
+      background: #fff;
+      color: var(--black);
+      font-weight: 780;
+      letter-spacing: -0.01em;
+      box-shadow: 0 12px 26px var(--burgundy-10);
+      transition: transform 140ms ease, box-shadow 180ms ease, border 140ms ease;
+    }
+    a.btn::after {
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.55), transparent 55%);
+      opacity:0; transition: opacity 180ms ease; z-index:-1;
+    }
+    a.btn:hover { transform: translateY(-1px) scale(1.01); box-shadow: 0 16px 34px var(--burgundy-25); border-color:#7a1430; }
+    a.btn:hover::after { opacity: 1; }
+    a.btn:active { transform: translateY(0); box-shadow: 0 10px 20px var(--burgundy-10); }
+
+    a.btn.general { border-width: 2px; box-shadow: 0 18px 40px var(--burgundy-25); background: linear-gradient(135deg, #fff, #fdf7f1); }
+
+    .icon {
+      width: 46px; height: 46px; border-radius: 14px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--burgundy), #7a1430);
+      color: #fff; font-size: 22px; flex-shrink: 0;
+      box-shadow: 0 10px 20px var(--burgundy-25);
+    }
+
+    footer { margin-top: 18px; color: var(--muted); font-size: 14px; text-align: left; }
+    @media(max-width:640px){ body { padding: 20px 14px; } }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="top-actions">
+      <button type="button" onclick="location.href='index.html'">← Volver al inicio</button>
+    </div>
+
+    <header>
+      <h1>Ingresa a tu espacio</h1>
+      <p class="sub">Selecciona tu área para acceder a las herramientas y reportes correspondientes.</p>
+    </header>
+
+    <div class="actions" role="group" aria-label="Accesos por rol">
+      <a class="btn" href="soporte-logistica.html">
+        <span class="icon">🚚</span><span>Soporte y Logística</span>
+      </a>
+      <a class="btn" href="coordinacion.html">
+        <span class="icon">🧭</span><span>Coordinación</span>
+      </a>
+      <a class="btn" href="gerencia-zona.html">
+        <span class="icon">📍</span><span>Gerente de Zona</span>
+      </a>
+      <a class="btn" href="gerente-divisional-ambar.html">
+        <span class="icon">🏢</span><span>Gerente Divisional</span>
+      </a>
+      <a class="btn general" href="gerente-general.html">
+        <span class="icon">⭐</span><span>Gerente General</span>
+      </a>
+    </div>
+
+    <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

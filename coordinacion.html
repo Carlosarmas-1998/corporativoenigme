@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinación | Enigme</title>
+  <style>
+    :root {
+      --ivory: #F8F5E7; --burgundy: #5A0B1D; --burgundy-10: rgba(90,11,29,0.10);
+      --burgundy-20: rgba(90,11,29,0.20); --black: #0B0B0B; --muted: #4A4A4A; --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; font-family: "Inter", system-ui, sans-serif;
+      background: var(--ivory); color: var(--black); display: flex; justify-content: center;
+      padding: 32px 16px 48px;
+    }
+    main {
+      width: min(1080px, 100%); background: var(--ivory); border: 2px solid var(--burgundy);
+      border-radius: 22px; box-shadow: 0 28px 90px var(--burgundy-10); padding: clamp(24px, 4vw, 40px);
+    }
+    h1 { margin: 0 0 10px; font-size: clamp(28px,3.4vw,34px); }
+    p.lead { margin: 0 0 18px; color: var(--muted); }
+    .card { border: 1px solid var(--burgundy); border-radius: var(--radius); background: #fff;
+            box-shadow: 0 12px 26px var(--burgundy-10); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 6px; font-weight: 650; color: var(--black); }
+    input, select, textarea {
+      width: 100%; border: 1px solid var(--burgundy-20); border-radius: 12px; padding: 12px; font: inherit; background: #fff;
+      transition: border 120ms ease, box-shadow 160ms ease;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--burgundy); box-shadow: 0 0 0 3px var(--burgundy-10); }
+    button {
+      border: 1px solid var(--burgundy); background: linear-gradient(135deg, #fff, #fdf7f1);
+      color: var(--black); padding: 12px 16px; border-radius: 12px; font-weight: 750; cursor: pointer;
+      box-shadow: 0 10px 22px var(--burgundy-10);
+      transition: transform 120ms ease, box-shadow 160ms ease, border 120ms ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 14px 30px var(--burgundy-20); border-color:#7a1430; }
+    button:active { transform: translateY(0); box-shadow: 0 8px 16px var(--burgundy-10); }
+    .btn-ghost { background:#fff; }
+    .msg { font-weight: 700; padding: 10px 12px; border-radius: 12px; }
+    .ok { color: #0f8a3b; background: #e9f8ec; border: 1px solid #bfe5c9; }
+    .err { color: #a3122f; background: #fdecef; border: 1px solid #f4c7d4; }
+    .hidden { display:none; }
+    .accordion-header {
+      display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+      padding:12px 14px; border-radius:12px; background:#fff; border:1px solid var(--burgundy);
+      box-shadow:0 8px 18px var(--burgundy-10); font-weight:750;
+    }
+    .accordion-body { margin-top:10px; }
+    table { width:100%; border-collapse: collapse; margin-top:12px; }
+    th, td { border:1px solid var(--burgundy-20); padding:10px; text-align:left; font-size:14px; }
+    th { background:#fdf7f1; font-weight:700; }
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+    footer { margin-top: 12px; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top-actions">
+      <button type="button" onclick="history.back()">← Volver</button>
+    </div>
+    <h1>Coordinación</h1>
+    <p class="lead">Identifica tu zona, municipio y subzona; valida PIN y luego usa los menús.</p>
+
+    <!-- Paso 1 -->
+    <section class="card" id="acceso">
+      <div class="grid-2">
+        <label>DNI* <input id="dni" required pattern="^[0-9]{6,20}$" placeholder="Solo números" /></label>
+        <label>Nombre completo* <input id="nombre" required /></label>
+        <label>Fecha de nacimiento* <input id="nacimiento" type="date" required /></label>
+      </div>
+
+      <label>Zona* 
+        <select id="zona" required>
+          <option value="">Selecciona</option>
+          <option value="ABRIVALLE">⚓ ABRIVALLE (Todo el Departamento de Valle)</option>
+          <option value="ABRIMON">⛰️ ABRIMON (Zona Montaña y Rutas del Norte)</option>
+          <option value="ABRICHOL">🏙️ ABRICHOL (Zona Metropolitana y Frontera Sur)</option>
+        </select>
+      </label>
+
+      <label>Municipio* 
+        <select id="municipio" required disabled>
+          <option value="">Selecciona la zona primero</option>
+        </select>
+      </label>
+
+      <label>Código del municipio (auto) <input id="munCode" readonly placeholder="—" /></label>
+
+      <label>Subzona* 
+        <select id="subzona" disabled required>
+          <option value="">Selecciona municipio (si aplica)</option>
+        </select>
+      </label>
+
+      <label>PIN de acceso* <input id="pin" required placeholder="Ingresa el PIN de tu municipio/subzona" /></label>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" id="continuar">Validar y mostrar panel</button>
+        <button type="button" class="btn-ghost" id="limpiar">Limpiar todo</button>
+      </div>
+      <div id="mensaje"></div>
+    </section>
+
+    <!-- Panel -->
+    <section class="card hidden" id="panel">
+      <div class="top-actions" style="margin-top:-8px;">
+        <button type="button" onclick="history.back()">← Volver</button>
+      </div>
+      <h2>Panel de Coordinación</h2>
+      <p class="lead" id="resumen"></p>
+
+      <!-- Verificar asesora -->
+      <div class="card">
+        <div class="accordion-header" data-acc="verif">Verificar asesora <span>▼</span></div>
+        <div class="accordion-body" id="acc-verif">
+          <div class="grid-3">
+            <label>DNI de asesora* <input id="v_dni" required /></label>
+            <label>Fecha de nacimiento* <input id="v_fecha" type="date" required /></label>
+          </div>
+          <button type="button" id="btnVerificar">Verificar</button>
+          <div id="verifMsg"></div>
+          <div id="verifResultado"></div>
+        </div>
+      </div>
+
+      <!-- Nombramiento -->
+      <div class="card">
+        <div class="accordion-header" data-acc="nom">Subir nombramiento <span>▼</span></div>
+        <div class="accordion-body hidden" id="acc-nom">
+          <div class="grid-3">
+            <label>Nombre completo* <input id="n_nombre" required /></label>
+            <label>DNI* <input id="n_dni" required /></label>
+            <label>Fecha de nacimiento* <input id="n_fecha" type="date" required /></label>
+            <label>Género* 
+              <select id="n_genero" required>
+                <option value="">Selecciona</option><option>Hombre</option><option>Mujer</option><option>Prefiero no decir</option>
+              </select>
+            </label>
+            <label>Campaña de ingreso* <input id="n_campana" required placeholder="Ej: 2026-02" /></label>
+            <label>Teléfono* <input id="n_tel" required /></label>
+            <label>Correo* <input id="n_mail" type="email" required /></label>
+            <label>Dirección* <input id="n_dir" required /></label>
+            <label>Zona* 
+              <select id="n_zona" required>
+                <option value="">Selecciona</option>
+                <option value="ABRIVALLE">⚓ ABRIVALLE</option>
+                <option value="ABRIMON">⛰️ ABRIMON</option>
+                <option value="ABRICHOL">🏙️ ABRICHOL</option>
+              </select>
+            </label>
+            <label>Municipio* 
+              <select id="n_muni" required disabled>
+                <option value="">Selecciona la zona</option>
+              </select>
+            </label>
+            <label>Subzona* 
+              <select id="n_sub" required disabled>
+                <option value="">Selecciona municipio (si aplica)</option>
+              </select>
+            </label>
+          </div>
+          <label>Código autogenerado <input id="n_codigo" readonly /></label>
+          <label>Adjuntar DNI / contratos (máx 3) <input id="n_files" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple required /></label>
+          <small>Máximo 3 archivos. Para envío a email, conecta esta acción a tu backend / webhook.</small>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="btnNombrar">Guardar nombramiento</button>
+            <button type="button" class="btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Volver arriba</button>
+          </div>
+          <div id="nomMsg"></div>
+        </div>
+      </div>
+
+      <!-- Pedido -->
+      <div class="card">
+        <div class="accordion-header" data-acc="pedido">Subir pedido <span>▼</span></div>
+        <div class="accordion-body hidden" id="acc-pedido">
+          <div class="grid-2">
+            <label>Código asesora* <input id="p_codigo" required /></label>
+            <label>DNI* <input id="p_dni" required /></label>
+            <label>Nombre* <input id="p_nombre" required /></label>
+            <label>Fecha de nacimiento* <input id="p_fecha" type="date" required /></label>
+          </div>
+          <small>Al ingresar un código ya registrado, se auto-rellenan los datos guardados.</small>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="btnPrefill">Cargar datos por código</button>
+            <button type="button" id="btnAddLinea">Agregar línea</button>
+          </div>
+
+          <table id="tablaPedido">
+            <thead>
+              <tr><th>Cant*</th><th>Código*</th><th>Precio*</th><th>Total</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="msg ok" id="pedidoTotales">Total: 0.00</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="btnGuardarPedido">Enviar pedido (demo)</button>
+            <button type="button" class="btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Volver arriba</button>
+          </div>
+          <div id="pedidoMsg"></div>
+        </div>
+      </div>
+
+      <!-- Pago -->
+      <div class="card">
+        <div class="accordion-header" data-acc="pago">Gestión de pago <span>▼</span></div>
+        <div class="accordion-body hidden" id="acc-pago">
+          <div class="grid-3">
+            <label>Nombramientos realizados* <input id="g_nom" type="number" min="0" required /></label>
+            <label>¿Cumplió meta de gerencia?* 
+              <select id="g_meta" required>
+                <option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option>
+              </select>
+            </label>
+            <label>Total ventas del equipo* <input id="g_ventas" type="number" min="0" step="0.01" required /></label>
+          </div>
+          <div class="msg ok" id="g_resumen"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="btnCalcular">Calcular total</button>
+            <button type="button" id="btnVoucher">Generar voucher PDF</button>
+            <button type="button" class="btn-ghost" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Volver arriba</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <footer>© <span id="year"></span> Enigme. Todos los derechos reservados.</footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const zonaSelect = document.getElementById('zona');
+    const municipioSelect = document.getElementById('municipio');
+    const subzonaSelect = document.getElementById('subzona');
+    const pinInput = document.getElementById('pin');
+    const msgBox = document.getElementById('mensaje');
+    const panel = document.getElementById('panel');
+    const resumen = document.getElementById('resumen');
+    const munCodeInput = document.getElementById('munCode');
+    const acceso = document.getElementById('acceso');
+
+    const muniCodes = {
+      "Amapala (Isla)": "AA01","Alianza": "AL01","Goascorán (Aduana El Amatillo)": "GO01","Aramecina": "AR01",
+      "Caridad": "CA01","San Francisco de Coray": "SC01","Langue": "LA01","Nacaome": "NE01","San Lorenzo": "SZ00",
+      "El Triunfo": "ET01","Marcovia": "MA01","Namasigüe": "NA01","El Corpus": "EC01","Concepción de María": "CM01",
+      "San Marcos de Colón": "SM01","Duyure": "DU01","Santa Ana de Yusguare": "SA01","Choluteca": "CH00",
+      "Pespire": "PE01","Apacilagua": "AP01","Morolica": "MO01","Orocuina": "OR01","San José": "SJ01",
+      "San Isidro": "SI01","San Antonio de Flores": "SF01"
+    };
+
+    const data = {
+      ABRICHOL: {
+        municipios: ["El Triunfo","Marcovia","Namasigüe","El Corpus","Concepción de María","San Marcos de Colón","Duyure","Santa Ana de Yusguare","Choluteca"],
+        pins: {"El Triunfo": "461320","Marcovia": "745826","Namasigüe": "141390","El Corpus": "254515","Concepción de María": "971162","San Marcos de Colón": "409018","Duyure": "258507","Santa Ana de Yusguare": "274801","Choluteca": "CH-MUNI"},
+        subzonas: {"Choluteca": { "CH01":"291660", "CH02":"395308", "CH03":"763431", "CH04":"301542" }}
+      },
+      ABRIMON: {
+        municipios: ["Pespire","Apacilagua","Morolica","Orocuina","San José","San Isidro","San Antonio de Flores"],
+        pins: {"Pespire":"230671","Apacilagua":"957190","Morolica":"576864","Orocuina":"157573","San José":"192728","San Isidro":"917238","San Antonio de Flores":"298022"},
+        subzonas: {}
+      },
+      ABRIVALLE: {
+        municipios: ["Amapala (Isla)","Alianza","Goascorán (Aduana El Amatillo)","Aramecina","Caridad","San Francisco de Coray","Langue","Nacaome","San Lorenzo"],
+        pins: {"Amapala (Isla)":"725432","Alianza":"817775","Goascorán (Aduana El Amatillo)":"709455","Aramecina":"640766","Caridad":"421354","San Francisco de Coray":"573212","Langue":"242799","Nacaome":"947849","San Lorenzo":"SL-MUNI"},
+        subzonas: {"San Lorenzo": { "SL01":"193198", "SL02":"885023", "SL03":"637443" }}
+      }
+    };
+
+    zonaSelect.addEventListener('change', () => {
+      const z = zonaSelect.value;
+      municipioSelect.innerHTML = '';
+      subzonaSelect.innerHTML = '<option value="">Selecciona municipio (si aplica)</option>';
+      subzonaSelect.disabled = true;
+      munCodeInput.value = "";
+
+      if (!z) {
+        municipioSelect.disabled = true;
+        municipioSelect.innerHTML = '<option value="">Selecciona la zona primero</option>';
+        msg("");
+        return;
+      }
+      const munis = data[z].municipios || [];
+      municipioSelect.disabled = false;
+      municipioSelect.insertAdjacentHTML('beforeend','<option value="">Selecciona</option>');
+      munis.forEach(m => municipioSelect.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
+      msg("");
+    });
+
+    municipioSelect.addEventListener('change', () => {
+      const z = zonaSelect.value;
+      const m = municipioSelect.value;
+      munCodeInput.value = muniCodes[m] || "";
+      const subMap = data[z]?.subzonas || {};
+      const subs = subMap[m] ? Object.keys(subMap[m]) : [];
+
+      if (subs.length) {
+        subzonaSelect.disabled = false;
+        subzonaSelect.innerHTML = '<option value="">Selecciona subzona</option>';
+        subs.forEach(s => subzonaSelect.insertAdjacentHTML('beforeend', `<option value="${s}">${s}</option>`));
+      } else {
+        subzonaSelect.disabled = false;
+        subzonaSelect.innerHTML = '<option value="NA">No aplica</option>';
+        subzonaSelect.value = "NA";
+      }
+      msg("");
+    });
+
+    document.getElementById('continuar').addEventListener('click', () => {
+      const z = zonaSelect.value;
+      const m = municipioSelect.value;
+      const sub = subzonaSelect.value;
+      const pin = pinInput.value.trim();
+
+      if (!z || !m || !pin || !sub) { msg("Completa zona, municipio, subzona y PIN.", true); return; }
+
+      let requiredPin = null;
+      if (sub !== "NA" && data[z]?.subzonas?.[m]?.[sub]) {
+        requiredPin = data[z].subzonas[m][sub];
+      } else {
+        requiredPin = data[z]?.pins?.[m] || null;
+      }
+
+      if (!requiredPin || requiredPin.endsWith("-MUNI")) { msg("No hay PIN configurado para esa selección.", true); return; }
+
+      if (pin === requiredPin) {
+        msg("PIN correcto. Acceso concedido.", false);
+        panel.classList.remove('hidden');
+        acceso.classList.add('hidden');
+        resumen.textContent = `Zona: ${z} · Municipio: ${m} (${muniCodes[m]||"—"})${sub && sub!=="NA" ? " · Subzona: " + sub : ""}`;
+        openAccordion("verif");
+      } else {
+        panel.classList.add('hidden');
+        msg("PIN incorrecto. Acceso denegado.", true);
+      }
+    });
+
+    document.getElementById('limpiar').addEventListener('click', () => {
+      ["dni","nombre","nacimiento","pin"].forEach(id => document.getElementById(id).value="");
+      zonaSelect.value = "";
+      municipioSelect.innerHTML = '<option value="">Selecciona la zona primero</option>';
+      municipioSelect.disabled = true;
+      subzonaSelect.innerHTML = '<option value="">Selecciona municipio (si aplica)</option>';
+      subzonaSelect.disabled = true;
+      munCodeInput.value = "";
+      msg("");
+      panel.classList.add('hidden');
+      resumen.textContent = "";
+      acceso.classList.remove('hidden');
+    });
+
+    function msg(text, isError=false){
+      if(!text){ msgBox.innerHTML=""; return; }
+      msgBox.className = "msg " + (isError ? "err" : "ok");
+      msgBox.textContent = text;
+    }
+
+    const LS_KEY = "coord_registros";
+    const LS_SEQ = "coord_seq";
+    const getSeq = () => {
+      let n = parseInt(localStorage.getItem(LS_SEQ) || "301200", 10);
+      localStorage.setItem(LS_SEQ, n + 1);
+      return n;
+    };
+    const loadAll = () => JSON.parse(localStorage.getItem(LS_KEY) || "[]");
+    const saveAll = (arr) => localStorage.setItem(LS_KEY, JSON.stringify(arr));
+
+    const vDni = document.getElementById('v_dni');
+    const vFecha = document.getElementById('v_fecha');
+    const vMsg = document.getElementById('verifMsg');
+    const vRes = document.getElementById('verifResultado');
+    document.getElementById('btnVerificar').addEventListener('click', () => {
+      const dni = vDni.value.trim();
+      const f = vFecha.value;
+      if(!dni || !f){ setMsg(vMsg,"Completa DNI y fecha.",true); vRes.innerHTML=""; return; }
+      const all = loadAll();
+      const found = all.filter(r => r.dni === dni && r.nacimiento === f);
+      if(found.length){
+        setMsg(vMsg, "Registro encontrado.", false);
+        vRes.innerHTML = found.map(r => `<div class="msg ok" style="margin-top:8px;">
+          <div><strong>Nombre:</strong> ${r.nombre}</div>
+          <div><strong>DNI:</strong> ${r.dni}</div>
+          <div><strong>Fecha nac.:</strong> ${r.nacimiento}</div>
+          <div><strong>Género:</strong> ${r.genero}</div>
+          <div><strong>Zona/Municipio/Subzona:</strong> ${r.zona} / ${r.muni} / ${r.subzona||"N/A"}</div>
+          <div><strong>Tel:</strong> ${r.tel||"—"} · <strong>Correo:</strong> ${r.mail||"—"}</div>
+          <div><strong>Campaña ingreso:</strong> ${r.campana||"—"}</div>
+          <div><strong>Código:</strong> ${r.codigo}</div>
+        </div>`).join("");
+      } else {
+        setMsg(vMsg, "No existe en registros.", true);
+        vRes.innerHTML = "";
+      }
+    });
+
+    /* Nombramiento */
+    const nZ = document.getElementById('n_zona');
+    const nM = document.getElementById('n_muni');
+    const nS = document.getElementById('n_sub');
+    nZ.addEventListener('change', () => {
+      const z = nZ.value;
+      nM.innerHTML = '';
+      nS.innerHTML = '<option value="">Selecciona municipio (si aplica)</option>';
+      nS.disabled = true;
+      if(!z){
+        nM.disabled = true; nM.innerHTML='<option value="">Selecciona la zona</option>'; return;
+      }
+      const munis = data[z].municipios || [];
+      nM.disabled = false;
+      nM.insertAdjacentHTML('beforeend','<option value="">Selecciona</option>');
+      munis.forEach(m=>nM.insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`));
+    });
+    nM.addEventListener('change', () => {
+      const z = nZ.value, m = nM.value;
+      const subMap = data[z]?.subzonas || {};
+      const subs = subMap[m] ? Object.keys(subMap[m]) : [];
+      if(subs.length){
+        nS.disabled = false;
+        nS.innerHTML = '<option value="">Selecciona subzona</option>';
+        subs.forEach(s=>nS.insertAdjacentHTML('beforeend', `<option value="${s}">${s}</option>`));
+      } else {
+        nS.disabled = false;
+        nS.innerHTML = '<option value="NA">No aplica</option>';
+        nS.value = "NA";
+      }
+    });
+
+    const nNombre = document.getElementById('n_nombre');
+    const nDni = document.getElementById('n_dni');
+    const nFecha = document.getElementById('n_fecha');
+    const nGenero = document.getElementById('n_genero');
+    const nCamp = document.getElementById('n_campana');
+    const nTel = document.getElementById('n_tel');
+    const nMail = document.getElementById('n_mail');
+    const nDir = document.getElementById('n_dir');
+    const nCod = document.getElementById('n_codigo');
+    const nFiles = document.getElementById('n_files');
+    const nomMsg = document.getElementById('nomMsg');
+    nCod.value = localStorage.getItem(LS_SEQ) || "301200";
+
+    document.getElementById('btnNombrar').addEventListener('click', () => {
+      if(!nNombre.value.trim() || !nDni.value.trim() || !nFecha.value || !nGenero.value || !nCamp.value.trim() ||
+         !nTel.value.trim() || !nMail.value.trim() || !nDir.value.trim() || !nZ.value || !nM.value || !nS.value){
+        setMsg(nomMsg,"Completa todos los campos obligatorios (*).",true); return;
+      }
+      if(nFiles.files.length === 0 || nFiles.files.length > 3){ setMsg(nomMsg,"Adjunta entre 1 y 3 archivos.",true); return; }
+
+      const codigo = getSeq();
+      nCod.value = codigo;
+
+      const rec = {
+        nombre: nNombre.value.trim(),
+        dni: nDni.value.trim(),
+        nacimiento: nFecha.value,
+        genero: nGenero.value,
+        campana: nCamp.value.trim(),
+        tel: nTel.value.trim(),
+        mail: nMail.value.trim(),
+        dir: nDir.value.trim(),
+        zona: nZ.value,
+        muni: nM.value,
+        subzona: nS.value,
+        codigo: codigo,
+        createdAt: new Date().toISOString()
+      };
+      const all = loadAll();
+      all.push(rec);
+      saveAll(all);
+
+      setMsg(nomMsg, "Nombramiento guardado. Archivos listos para enviar a tu backend/email.", false);
+      clearNom();
+    });
+
+    function clearNom(){
+      [nNombre,nDni,nFecha,nGenero,nCamp,nTel,nMail,nDir].forEach(i=>i.value="");
+      nZ.value=""; nM.innerHTML='<option value="">Selecciona la zona</option>'; nM.disabled=true;
+      nS.innerHTML='<option value="">Selecciona municipio (si aplica)</option>'; nS.disabled=true;
+      nFiles.value=""; nCod.value = localStorage.getItem(LS_SEQ);
+    }
+
+    function setMsg(node, text, isErr){
+      if(!text){ node.innerHTML=""; return; }
+      node.className = "msg " + (isErr ? "err" : "ok");
+      node.textContent = text;
+    }
+
+    /* Pedido con tabla dinámica */
+    const pCod = document.getElementById('p_codigo');
+    const pDni = document.getElementById('p_dni');
+    const pNom = document.getElementById('p_nombre');
+    const pFecha = document.getElementById('p_fecha');
+    const pMsg = document.getElementById('pedidoMsg');
+    const tBody = document.querySelector('#tablaPedido tbody');
+    const tTot = document.getElementById('pedidoTotales');
+
+    function addLinea(cant=1,cod="",precio=0){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="number" min="1" value="${cant}" required /></td>
+        <td><input value="${cod}" required /></td>
+        <td><input type="number" min="0" step="0.01" value="${precio}" required /></td>
+        <td><input readonly value="0.00" /></td>
+        <td><button type="button" class="del">✕</button></td>`;
+      tBody.appendChild(tr);
+      calcLine(tr);
+    }
+    function calcLine(tr){
+      const [qEl,cEl,pEl,totalEl] = tr.querySelectorAll('input');
+      const q = parseFloat(qEl.value)||0, p=parseFloat(pEl.value)||0;
+      totalEl.value = (q*p).toFixed(2);
+      calcTotals();
+    }
+    function calcTotals(){
+      let sum=0;
+      tBody.querySelectorAll('tr').forEach(tr=>{
+        const val = parseFloat(tr.querySelectorAll('input')[3].value)||0;
+        sum += val;
+      });
+      tTot.textContent = `Total: L ${sum.toFixed(2)}`;
+    }
+    tBody.addEventListener('input', e=>{
+      const tr = e.target.closest('tr'); if(tr) calcLine(tr);
+    });
+    tBody.addEventListener('click', e=>{
+      if(e.target.classList.contains('del')){
+        e.target.closest('tr').remove(); calcTotals();
+      }
+    });
+    document.getElementById('btnAddLinea').addEventListener('click', ()=>addLinea());
+
+    document.getElementById('btnPrefill').addEventListener('click', () => {
+      const code = pCod.value.trim();
+      if(!code){ setMsg(pMsg,"Ingresa código.",true); return; }
+      const all = loadAll();
+      const r = all.find(x => String(x.codigo) === code);
+      if(r){
+        pDni.value = r.dni; pNom.value = r.nombre; pFecha.value = r.nacimiento;
+        setMsg(pMsg,"Datos cargados desde registro.",false);
+        if(!tBody.children.length) addLinea();
+      } else {
+        setMsg(pMsg,"Código no encontrado.",true);
+      }
+    });
+
+    document.getElementById('btnGuardarPedido').addEventListener('click', () => {
+      if(!pCod.value.trim() || !pDni.value.trim() || !pNom.value.trim() || !pFecha.value || !tBody.children.length){
+        setMsg(pMsg,"Completa código, datos y al menos una línea.",true); return;
+      }
+      setMsg(pMsg,"Pedido enviado (demo). Conecta a tu backend/email para envío real.",false);
+    });
+
+    /* Pago */
+    const gNom = document.getElementById('g_nom');
+    const gMeta = document.getElementById('g_meta');
+    const gVentas = document.getElementById('g_ventas');
+    const gRes = document.getElementById('g_resumen');
+    let ultimoTotal = 0;
+
+    document.getElementById('btnCalcular').addEventListener('click', () => {
+      const n = parseInt(gNom.value || "0",10);
+      if(isNaN(n) || n<0 || !gMeta.value || gVentas.value===""){ gRes.textContent="Completa los datos."; return; }
+      const ventas = parseFloat(gVentas.value)||0;
+      let base = n * 220;
+      let bonusMeta = gMeta.value==="si" ? 600 : 0;
+      let bonusNom = n>=4 ? 700 : 0;
+      let comision = ventas * 0.04;
+      let total = base + bonusMeta + bonusNom + comision;
+      ultimoTotal = total;
+      gRes.innerHTML = `Base: L ${base.toFixed(2)} | Meta: L ${bonusMeta.toFixed(2)} | ≥4 nombramientos: L ${bonusNom.toFixed(2)} | 4% ventas: L ${comision.toFixed(2)} <br><strong>Total: L ${total.toFixed(2)}</strong>`;
+    });
+
+    document.getElementById('btnVoucher').addEventListener('click', () => {
+      if(!ultimoTotal){ alert("Calcula primero."); return; }
+      const fecha = new Date().toLocaleDateString();
+      const voucher = `
+        <html><head><title>Voucher</title></head><body style="font-family:Arial;padding:20px;">
+        <h2>Enigme Universo</h2>
+        <p>Se certifica que a la fecha ${fecha} has generado:</p>
+        <h3>Total: L ${ultimoTotal.toFixed(2)}</h3>
+        <p>Este comprobante fue generado automáticamente.</p>
+        </body></html>`;
+      const w = window.open("", "_blank");
+      w.document.write(voucher); w.document.close(); w.print();
+    });
+
+    /* Accordion */
+    const headers = document.querySelectorAll('.accordion-header');
+    headers.forEach(h => h.addEventListener('click', () => {
+      const target = h.dataset.acc;
+      ['verif','nom','pedido','pago'].forEach(id => {
+        const body = document.getElementById('acc-'+id);
+        if(id === target){
+          body.classList.toggle('hidden');
+        } else {
+          body.classList.add('hidden');
+        }
+      });
+    }));
+    function openAccordion(id){
+      ['verif','nom','pedido','pago'].forEach(k=>{
+        document.getElementById('acc-'+k).classList.toggle('hidden', k!==id);
+      });
+    }
+  </script>
+</body>
+</html>

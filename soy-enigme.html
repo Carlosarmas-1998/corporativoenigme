@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#060607" />
+  <title>Soy ÈNIGME · Manifiesto</title>
+  <meta name="description" content="Soy ÈNIGME · Manifiesto corporativo de crecimiento profesional y económico." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:#060607;
+      --panel:#0b0b10;
+      --text:#f2f2f4;
+      --muted:rgba(242,242,244,.78);
+
+      --gold:#d8b25a;
+      --gold2:#f4d07a;
+      --burg:#6c0f2a;
+      --burg2:#8a1736;
+
+      --ring: rgba(216,178,90,.35);
+      --shadow: 0 30px 90px rgba(0,0,0,.65);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 25% 10%, rgba(216,178,90,.08), transparent 60%),
+                  radial-gradient(900px 700px at 85% 20%, rgba(108,15,42,.12), transparent 55%),
+                  radial-gradient(900px 900px at 50% 95%, rgba(216,178,90,.06), transparent 55%),
+                  var(--bg);
+      overflow-x:hidden;
+    }
+
+    /* Sparkles canvas (destellos) */
+    #sparkles{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+      pointer-events:none;
+      opacity:.92;
+      mix-blend-mode: screen;
+      filter: saturate(1.05) contrast(1.02);
+    }
+
+    /* Soft vignette for luxury feel */
+    .vignette{
+      position:fixed;
+      inset:-1px;
+      z-index:1;
+      pointer-events:none;
+      background:
+        radial-gradient(1200px 900px at 50% 40%, transparent 35%, rgba(0,0,0,.55) 75%),
+        radial-gradient(900px 900px at 20% 10%, rgba(0,0,0,.35), transparent 55%),
+        radial-gradient(900px 900px at 85% 15%, rgba(0,0,0,.32), transparent 60%);
+    }
+
+    .wrap{
+      position:relative;
+      z-index:2;
+      min-height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(18px, 3.2vw, 44px);
+    }
+
+    .card{
+      width:min(980px, 100%);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(14,14,20,.78), rgba(10,10,14,.62));
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(216,178,90,.22);
+      overflow:hidden;
+      position:relative;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(700px 260px at 20% 0%, rgba(216,178,90,.20), transparent 60%),
+        radial-gradient(700px 260px at 85% 0%, rgba(108,15,42,.20), transparent 60%);
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    header{
+      position:relative;
+      padding: clamp(18px, 3.2vw, 34px) clamp(18px, 3.2vw, 42px) 0;
+    }
+
+    .kicker{
+      letter-spacing:.28em;
+      text-transform:uppercase;
+      font-size:.78rem;
+      color: rgba(242,242,244,.72);
+    }
+
+    h1{
+      margin:10px 0 8px;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      letter-spacing:.02em;
+      font-size: clamp(2rem, 4.2vw, 3.35rem);
+      line-height:1.05;
+    }
+
+    .sub{
+      margin:0;
+      color: var(--muted);
+      font-size: clamp(.98rem, 1.45vw, 1.06rem);
+      line-height:1.55;
+      max-width: 70ch;
+    }
+
+    .divider{
+      height:1px;
+      margin: clamp(16px, 2.4vw, 22px) 0;
+      background: linear-gradient(90deg, transparent, rgba(216,178,90,.42), rgba(108,15,42,.35), transparent);
+      opacity:.9;
+    }
+
+    main{
+      position:relative;
+      padding: 0 clamp(18px, 3.2vw, 42px) clamp(18px, 3.2vw, 34px);
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: clamp(16px, 2.6vw, 26px);
+    }
+
+    @media (max-width: 860px){
+      main{grid-template-columns: 1fr}
+    }
+
+    .manifesto{
+      padding: clamp(14px, 2.4vw, 18px);
+      border-radius: 18px;
+      border: 1px solid rgba(242,242,244,.08);
+      background: linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.16));
+    }
+
+    .manifesto p{
+      margin: 0 0 12px;
+      color: rgba(242,242,244,.86);
+      line-height:1.7;
+      font-size: 1rem;
+    }
+
+    .manifesto strong{
+      color: rgba(244,208,122,.92);
+      font-weight: 600;
+    }
+
+    .points{
+      margin: 14px 0 0;
+      padding: 0;
+      list-style:none;
+      display:grid;
+      gap: 10px;
+    }
+
+    .points li{
+      display:flex;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(216,178,90,.16);
+      background: linear-gradient(90deg, rgba(216,178,90,.06), rgba(108,15,42,.05));
+    }
+
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      margin-top: 6px;
+      background: radial-gradient(circle at 30% 30%, var(--gold2), var(--gold));
+      box-shadow: 0 0 0 6px rgba(216,178,90,.08), 0 10px 30px rgba(216,178,90,.16);
+      flex:0 0 auto;
+    }
+
+    .points b{
+      display:block;
+      font-size:.98rem;
+      letter-spacing:.01em;
+      margin-bottom:2px;
+      color: rgba(242,242,244,.95);
+    }
+    .points span{
+      color: rgba(242,242,244,.78);
+      line-height:1.55;
+      font-size:.95rem;
+    }
+
+    .side{
+      padding: clamp(14px, 2.4vw, 18px);
+      border-radius: 18px;
+      border: 1px solid rgba(216,178,90,.18);
+      background: linear-gradient(180deg, rgba(10,10,14,.40), rgba(0,0,0,.16));
+      position:relative;
+      overflow:hidden;
+    }
+
+    .side::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:
+        radial-gradient(220px 220px at 20% 15%, rgba(216,178,90,.22), transparent 60%),
+        radial-gradient(260px 260px at 85% 25%, rgba(108,15,42,.20), transparent 62%);
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    .side h2{
+      position:relative;
+      margin:0 0 10px;
+      font-size: 1.06rem;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      color: rgba(242,242,244,.88);
+    }
+
+    .pledge{
+      position:relative;
+      margin:0;
+      color: rgba(242,242,244,.80);
+      line-height:1.7;
+      font-size: .98rem;
+    }
+
+    .quote{
+      position:relative;
+      margin-top: 14px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(242,242,244,.08);
+      background: rgba(0,0,0,.22);
+      color: rgba(242,242,244,.86);
+      line-height:1.65;
+      font-size:.95rem;
+    }
+
+    .quote em{
+      color: rgba(244,208,122,.90);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .actions{
+      position:relative;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top: 16px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration:none;
+      letter-spacing:.02em;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+      will-change: transform;
+      user-select:none;
+      outline:none;
+    }
+    .btn:focus-visible{
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+
+    .btn-primary{
+      color: #0a0a0d;
+      background: linear-gradient(180deg, var(--gold2), var(--gold));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 20px 55px rgba(216,178,90,.18);
+    }
+    .btn-primary:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 26px 75px rgba(216,178,90,.22);
+    }
+    .btn-ghost{
+      color: rgba(242,242,244,.92);
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(216,178,90,.22);
+    }
+    .btn-ghost:hover{
+      transform: translateY(-1px);
+      border-color: rgba(216,178,90,.34);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+
+    footer{
+      position:relative;
+      padding: 0 clamp(18px, 3.2vw, 42px) clamp(18px, 3.2vw, 26px);
+    }
+    .micro{
+      margin: 0;
+      color: rgba(242,242,244,.58);
+      font-size: .86rem;
+      letter-spacing:.02em;
+      line-height:1.55;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .btn{transition:none}
+      #sparkles{display:none}
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="sparkles" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <section class="card" role="region" aria-label="Manifiesto Soy ÈNIGME">
+      <header>
+        <div class="kicker">Manifiesto corporativo</div>
+        <h1>SOY ÈNIGME</h1>
+        <p class="sub">
+          No es solo un nombre. Es un estándar: <strong>crecimiento profesional</strong>, <strong>disciplina económica</strong>
+          y <strong>presencia</strong> en cada decisión. Aquí se trabaja con método, se mide con datos y se avanza con visión.
+        </p>
+        <div class="divider"></div>
+      </header>
+
+      <main>
+        <article class="manifesto">
+          <p>
+            Soy ÈNIGME cuando convierto el trabajo en resultados, y los resultados en legado.
+            Me entreno para liderar: con calma, con enfoque y con excelencia.
+          </p>
+          <p>
+            Mi ambición es clara: <strong>crecer</strong> sin perder el control, <strong>ganar</strong> con ética,
+            y <strong>construir</strong> una trayectoria que se sostenga en el tiempo.
+          </p>
+
+          <ul class="points">
+            <li>
+              <div class="dot" aria-hidden="true"></div>
+              <div>
+                <b>Profesionalismo real</b>
+                <span>Planifico, ejecuto y entrego. Cumplo procesos, cuido la imagen y respeto la palabra.</span>
+              </div>
+            </li>
+            <li>
+              <div class="dot" aria-hidden="true"></div>
+              <div>
+                <b>Crecimiento medible</b>
+                <span>Aprendo, me certifico y mejoro mis indicadores. El progreso no se improvisa: se diseña.</span>
+              </div>
+            </li>
+            <li>
+              <div class="dot" aria-hidden="true"></div>
+              <div>
+                <b>Disciplina económica</b>
+                <span>Administro ingresos con inteligencia: separo metas, ahorro, reinvierto y protejo mi estabilidad.</span>
+              </div>
+            </li>
+            <li>
+              <div class="dot" aria-hidden="true"></div>
+              <div>
+                <b>Confianza y ética</b>
+                <span>Trabajo limpio: transparencia, respeto y responsabilidad. La reputación es capital.</span>
+              </div>
+            </li>
+            <li>
+              <div class="dot" aria-hidden="true"></div>
+              <div>
+                <b>Presencia</b>
+                <span>Comunico con elegancia, tomo decisiones con firmeza y represento la marca con orgullo.</span>
+              </div>
+            </li>
+          </ul>
+        </article>
+
+        <aside class="side">
+          <h2>Compromiso</h2>
+          <p class="pledge">
+            Elijo la constancia sobre la excusa. Elijo la estrategia sobre el impulso.
+            Elijo la excelencia como rutina.
+          </p>
+
+          <div class="quote">
+            <em>“Mi crecimiento es intencional.”</em><br/>
+            Cada campaña, cada meta y cada paso cuentan. Lo que hoy construyo, mañana me sostiene.
+          </div>
+
+          <div class="actions" role="navigation" aria-label="Acciones">
+            <a class="btn btn-primary" href="index.html" aria-label="Volver al index">Volver</a>
+            <a class="btn btn-ghost" href="soporte-ayuda.html" aria-label="Ir a soporte">Soporte</a>
+          </div>
+        </aside>
+      </main>
+
+      <footer>
+        <p class="micro">
+          ÈNIGME · Aura · Misterio · Presencia — Manifiesto interno de desarrollo profesional y económico.
+        </p>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      const canvas = document.getElementById('sparkles');
+      const ctx = canvas.getContext('2d', { alpha: true });
+
+      const DPR = Math.min(window.devicePixelRatio || 1, 2);
+      let W = 0, H = 0;
+
+      const colors = [
+        { r: 216, g: 178, b: 90, a: 0.95 }, // gold
+        { r: 244, g: 208, b: 122, a: 0.85 }, // gold light
+        { r: 108, g: 15,  b: 42, a: 0.75 }, // burgundy
+        { r: 138, g: 23,  b: 54, a: 0.70 }  // burgundy 2
+      ];
+
+      const sparkles = [];
+      const baseCount = 170; // "muchos destellos" sin matar rendimiento
+
+      function resize(){
+        W = Math.floor(window.innerWidth);
+        H = Math.floor(window.innerHeight);
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+
+      function rand(min, max){ return Math.random() * (max - min) + min; }
+
+      function makeSparkle(){
+        const c = colors[(Math.random() * colors.length) | 0];
+        const size = rand(0.6, 2.2);
+        return {
+          x: rand(0, W),
+          y: rand(0, H),
+          r: size,
+          vx: rand(-0.04, 0.04),
+          vy: rand(0.02, 0.10),
+          tw: rand(0.004, 0.018),     // twinkle speed
+          ph: rand(0, Math.PI * 2),   // phase
+          a: rand(0.18, 0.70),
+          c
+        };
+      }
+
+      function seed(){
+        sparkles.length = 0;
+        const count = Math.floor(baseCount * (W * H / (1280 * 720)));
+        const clamped = Math.max(110, Math.min(260, count));
+        for(let i=0;i<clamped;i++) sparkles.push(makeSparkle());
+      }
+
+      function drawStar(x, y, r, color, alpha){
+        // small 4-point sparkle (plus glow)
+        ctx.save();
+        ctx.translate(x, y);
+        const glow = Math.max(6, r * 10);
+        const grad = ctx.createRadialGradient(0,0,0, 0,0,glow);
+        grad.addColorStop(0, `rgba(${color.r},${color.g},${color.b},${alpha})`);
+        grad.addColorStop(1, `rgba(${color.r},${color.g},${color.b},0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0,0,glow,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.globalAlpha = Math.min(1, alpha + 0.15);
+        ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${Math.min(1, alpha + 0.25)})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-r*4, 0); ctx.lineTo(r*4, 0);
+        ctx.moveTo(0, -r*4); ctx.lineTo(0, r*4);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      let t = 0;
+      function tick(){
+        t += 1;
+        ctx.clearRect(0,0,W,H);
+
+        // subtle drift + twinkle
+        for(const s of sparkles){
+          s.x += s.vx;
+          s.y += s.vy;
+
+          // wrap
+          if(s.y > H + 20){ s.y = -20; s.x = rand(0,W); }
+          if(s.x < -20) s.x = W + 20;
+          if(s.x > W + 20) s.x = -20;
+
+          const twinkle = (Math.sin(s.ph + t * s.tw) + 1) * 0.5; // 0..1
+          const alpha = s.a * (0.35 + 0.75 * twinkle);
+          drawStar(s.x, s.y, s.r, s.c, alpha);
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      resize();
+      seed();
+      tick();
+
+      let rto = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(rto);
+        rto = setTimeout(() => { resize(); seed(); }, 120);
+      }, { passive:true });
+    })();
+  </script>
+</body>
+</html>
